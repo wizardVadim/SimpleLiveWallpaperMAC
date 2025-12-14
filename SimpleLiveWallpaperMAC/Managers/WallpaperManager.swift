@@ -5,8 +5,9 @@ import Combine
 
 class WallpaperManager: ObservableObject {
     @Published var isPlaying = false
-    private var desktopWindow: DesktopWindow?
-    
+    private var player: VideoPlayer?
+    private var containerWindow: NSWindow?
+
     @Published var availableWallpapers: [Wallpaper] = []
     @Published var currentWallpapers: [Wallpaper] = []
     
@@ -135,61 +136,62 @@ class WallpaperManager: ObservableObject {
         }
     }
     
-    func start() {
-        assert(Thread.isMainThread)
-
-        guard !isPlaying else {
-            print("⚠️ Is already playing")
-            return
+    func start(playScreenSaver: Bool = false) {
+        
+        startOnDesktop()
+        
+        print("playScreenSaver: \(playScreenSaver)")
+        if playScreenSaver {
+            startOnScreenSaver()
         }
-
-        guard desktopWindow == nil else {
-            stop()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.start()
-            }
-            return
-        }
-
-        guard let screen = NSScreen.main else {
-            print("❌ Main screen not found")
-            return
-        }
-
-        guard let wallpaper = currentWallpapers.first else {
-            print("❌ No wallpaper selected")
-            return
-        }
-
-        guard FileManager.default.fileExists(atPath: wallpaper.url.path) else {
-            print("❌ File not found")
-            return
-        }
-
-        let window = DesktopWindow(screen: screen)
-        window.playVideo(url: wallpaper.url)
-        window.orderFront(nil)
-
-        desktopWindow = window
+        
+    }
+    
+    func startOnDesktop() {
+        guard !isPlaying, let wallpaper = currentWallpapers.first else { return }
+        
+        guard let screen = NSScreen.main else { return }
+        
+        let window = NSWindow(contentRect: screen.frame,
+                              styleMask: [.borderless],
+                              backing: .buffered,
+                              defer: false)
+        window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.desktopWindow)))
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.ignoresMouseEvents = true
+        window.collectionBehavior = [.stationary, .canJoinAllSpaces, .ignoresCycle]
+        
+        let view = VideoPlayer(frame: screen.frame)
+        view.videoURL = wallpaper.url
+        window.contentView = view
+        window.makeKeyAndOrderFront(nil)
+        
+        containerWindow = window
+        player = view
         isPlaying = true
-
-        print("✅ Wallpaper is playing:", wallpaper.title)
+    }
+    
+    func startOnScreenSaver() {
+        print("playScreenSaver")
+        guard let wallpaper = currentWallpapers.first else { return }
+            
+        LockScreenUtil.setLockScreen(fromVideo: wallpaper.url)
     }
     
     func stop() {
-        assert(Thread.isMainThread)
+        guard let player = player else { return }
 
-        guard isPlaying else { return }
+        player.removeFromSuperviewSafely()
+        player.stopVideo()
 
-        print("⏹️ Stopping wallpaper")
+        if let window = containerWindow {
+            window.orderOut(nil)
+            containerWindow = nil
+        }
 
-        desktopWindow?.stopPlayback()
-        desktopWindow?.close()
-        desktopWindow = nil
-
+        self.player = nil
         isPlaying = false
-
-        print("✅ Stopped")
     }
     
     func selectWallpaper(_ wallpaper: Wallpaper) {

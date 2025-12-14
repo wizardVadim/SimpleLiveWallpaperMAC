@@ -17,9 +17,9 @@ struct SimpleLiveWallpaperMACApp: App {
                 .environmentObject(wallpaperManager)
                 .frame(width: 300, height: 500)
                 .onDisappear {
-                    wallpaperManager.stop()  // Очистка при закрытии
+                    wallpaperManager.stop()
                 }
         }
-        .windowResizability(.automatic)  // Динамический размер окна
+        .windowResizability(.automatic)
     }
 }
