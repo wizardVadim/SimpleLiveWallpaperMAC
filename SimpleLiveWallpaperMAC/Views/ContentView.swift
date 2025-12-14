@@ -126,9 +126,7 @@ struct AvailableWallpaperRow: View {
             // Кнопки
             if isSelected {
                 Button("Убрать") {
-                    if let index = manager.currentWallpapers.firstIndex(where: { $0.id == wallpaper.id }) {
-                        manager.currentWallpapers.remove(at: index)
-                    }
+                    manager.removeFromCurrent(wallpaper)
                 }
                 .buttonStyle(.borderless)
                 .foregroundColor(.red)

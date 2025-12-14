@@ -25,6 +25,13 @@ class WallpaperManager: ObservableObject {
         } catch {
             print("❌ Error creating a directory: \(error)")
         }
+        
+        loadWallpapers()
+        
+        if !currentWallpapers.isEmpty {
+            start()
+        }
+        
     }
         
     private func copyToSandbox(url: URL) throws -> URL {
@@ -55,52 +62,17 @@ class WallpaperManager: ObservableObject {
     }
     
     func saveWallpapers() {
-        do {
-            let data = try JSONEncoder().encode(availableWallpapers)
-            UserDefaults.standard.set(data, forKey: "savedWallpapers")
-            print("Wallpaper's saved count: \(availableWallpapers.count)")
-        } catch {
-            print("Save error!")
-        }
+        
+        saveAvailableWallpapers()
+        print("presave")
+        saveCurrentWallpapers()
     }
     
     func loadWallpapers() {
         
-        guard let data = UserDefaults.standard.data(forKey: "savedWallpapers") else {
-            print("ℹ️ No saved wallpapers")
-            return
-        }
+        loadAvailableWallpapers()
+        loadCurrentWallpapers()
         
-        do {
-            availableWallpapers = try JSONDecoder().decode([Wallpaper].self, from: data)
-            print("📥 Loaded wallpapers count: \(availableWallpapers.count)")
-            
-            var validWallpapers: [Wallpaper] = []
-            
-            for wallpaper in availableWallpapers {
-                let path = wallpaper.url.path
-                
-                if FileManager.default.fileExists(atPath: path) {
-                    let isReadable = FileManager.default.isReadableFile(atPath: path)
-                    print("✅ File found: \(wallpaper.title) - readable: \(isReadable)")
-                    
-                    if isReadable {
-                        validWallpapers.append(wallpaper)
-                    }
-                } else {
-                    print("❌ File is not found: \(wallpaper.title)")
-                }
-            }
-            
-            if validWallpapers.count != availableWallpapers.count {
-                availableWallpapers = validWallpapers
-                saveWallpapers()
-                print("🔄 Wallpapers updated. Total count: \(availableWallpapers.count)")
-            }
-            
-        } catch {
-            print("❌ Loading wallpapers failed: \(error)")
-        }
     }
     
     func addWallpaper(url: URL) {
@@ -112,20 +84,16 @@ class WallpaperManager: ObservableObject {
         defer { url.stopAccessingSecurityScopedResource() }
         
         do {
-            // Копируем файл в sandbox приложения
             let sandboxURL = try copyToSandbox(url: url)
             
-            // Проверяем, что файл доступен
             let isReadable = FileManager.default.isReadableFile(atPath: sandboxURL.path)
             print("✅ File is copied to sandbox")
             print("Readable: \(isReadable)")
             print("Size: \(try FileManager.default.attributesOfItem(atPath: sandboxURL.path)[.size] as? Int64 ?? 0) байт")
             
-            // Создаем Wallpaper с новым URL (внутри sandbox)
             var wallpaper = Wallpaper(url: sandboxURL)
-            wallpaper.fileName = url.lastPathComponent  // Сохраняем оригинальное имя
+            wallpaper.fileName = url.lastPathComponent
             
-            // Добавляем в список
             availableWallpapers.append(wallpaper)
             saveWallpapers()
             
@@ -203,7 +171,7 @@ class WallpaperManager: ObservableObject {
                 self.start()
             }
         }
-        
+        self.saveWallpapers()
         print("✅ Selected wallpaper: \(wallpaper.title)")
     }
     
@@ -211,5 +179,117 @@ class WallpaperManager: ObservableObject {
         availableWallpapers.removeAll { $0.id == wallpaper.id }
         saveWallpapers()
         print("🗑 Removed from available: \(wallpaper.title)")
+    }
+    
+    
+    func loadAvailableWallpapers() {
+        
+        guard let data = UserDefaults.standard.data(forKey: "savedWallpapers") else {
+            print("ℹ️ No saved wallpapers")
+            return
+        }
+        
+        do {
+            availableWallpapers = try JSONDecoder().decode([Wallpaper].self, from: data)
+            print("📥 Loaded wallpapers count: \(availableWallpapers.count)")
+            
+            var validWallpapers: [Wallpaper] = []
+            
+            for wallpaper in availableWallpapers {
+                let path = wallpaper.url.path
+                
+                if FileManager.default.fileExists(atPath: path) {
+                    let isReadable = FileManager.default.isReadableFile(atPath: path)
+                    print("✅ File found: \(wallpaper.title) - readable: \(isReadable)")
+                    
+                    if isReadable {
+                        validWallpapers.append(wallpaper)
+                    }
+                } else {
+                    print("❌ File is not found: \(wallpaper.title)")
+                }
+            }
+            
+            if validWallpapers.count != availableWallpapers.count {
+                availableWallpapers = validWallpapers
+                saveWallpapers()
+                print("🔄 Wallpapers updated. Total count: \(availableWallpapers.count)")
+            }
+            
+        } catch {
+            print("❌ Loading wallpapers failed: \(error)")
+        }
+    }
+    
+    func loadCurrentWallpapers() {
+        
+        guard let data = UserDefaults.standard.data(forKey: "currentWallpapers") else {
+            print("ℹ️ No current wallpapers")
+            return
+        }
+        
+        do {
+            currentWallpapers = try JSONDecoder().decode([Wallpaper].self, from: data)
+            print("📥 Loaded current wallpapers count: \(currentWallpapers.count)")
+            
+            var validWallpapers: [Wallpaper] = []
+            
+            for wallpaper in currentWallpapers {
+                let path = wallpaper.url.path
+                
+                if FileManager.default.fileExists(atPath: path) {
+                    let isReadable = FileManager.default.isReadableFile(atPath: path)
+                    print("✅ File found: \(wallpaper.title) - readable: \(isReadable)")
+                    
+                    if isReadable {
+                        validWallpapers.append(wallpaper)
+                    }
+                } else {
+                    print("❌ File is not found: \(wallpaper.title)")
+                }
+            }
+            
+            if validWallpapers.count != currentWallpapers.count {
+                currentWallpapers = validWallpapers
+                saveWallpapers()
+                print("🔄 Current wallpapers updated. Total count: \(currentWallpapers.count)")
+            }
+            
+        } catch {
+            print("❌ Loading wallpapers failed: \(error)")
+        }
+        
+    }
+    
+    func saveAvailableWallpapers() {
+        
+        do {
+            let data = try JSONEncoder().encode(availableWallpapers)
+            UserDefaults.standard.set(data, forKey: "savedWallpapers")
+            print("Wallpaper's saved count: \(availableWallpapers.count)")
+        } catch {
+            print("Save error!")
+        }
+        
+    }
+    
+    func saveCurrentWallpapers() {
+        print("insave")
+        do {
+            let data = try JSONEncoder().encode(currentWallpapers)
+            UserDefaults.standard.set(data, forKey: "currentWallpapers")
+            print("Wallpaper's saved count: \(currentWallpapers.count)")
+        } catch {
+            print("Save error!")
+        }
+        
+    }
+    
+    func removeFromCurrent(_ wallpaper: Wallpaper) {
+        currentWallpapers.removeAll { $0.id == wallpaper.id }
+        saveWallpapers()
+        print("🗑 Removed from current: \(wallpaper.title)")
+        stop()
+        start()
     }
 }
