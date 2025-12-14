@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e05c0971-aa7c-4187-933d-5f538e86636c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/Managers/WallpaperManager.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/Resources/Assets.xcassets/AccentColor.colorset/Contents.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/Resources/Assets.xcassets/Contents.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/Utilities/DesktopWindow.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/Assets.xcassets/AccentColor.colorset/Contents.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/Assets.xcassets/AppIcon.appiconset/Contents.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/Assets.xcassets/Contents.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/ContentView.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/SimpleLiveWallpaperMACApp.swift" beforeDir="false" afterPath="$PROJECT_DIR$/SimpleLiveWallpaperMAC/App/SimpleLiveWallpaperMACApp.swift" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 1
+}]]></component>
+  <component name="ProjectId" id="36nJ49u3kaOD23PrPKJxqIgKayd" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/vadimvehov/Documents/GitHub/SimpleLiveWallpaperMAC"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/SimpleLiveWallpaperMAC" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-abccbe9d933a-ba05f1cad1b1-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-242.20224.428" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e05c0971-aa7c-4187-933d-5f538e86636c" name="Changes" comment="" />
+      <created>1765636207344</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1765636207344</updated>
+    </task>
+    <servers />
+  </component>
+</project>
