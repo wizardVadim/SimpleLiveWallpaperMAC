@@ -6,8 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		625E84522EEDB19C0086AE08 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 625E84502EEDB19C0086AE08 /* LICENSE */; };
+		625E84532EEDB19C0086AE08 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 625E84512EEDB19C0086AE08 /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		625E84422EEDB17C0086AE08 /* SimpleLiveWallpaperMAC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleLiveWallpaperMAC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		625E84502EEDB19C0086AE08 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		625E84512EEDB19C0086AE08 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -34,6 +41,8 @@
 			children = (
 				625E84442EEDB17C0086AE08 /* SimpleLiveWallpaperMAC */,
 				625E84432EEDB17C0086AE08 /* Products */,
+				625E84512EEDB19C0086AE08 /* README.md */,
+				625E84502EEDB19C0086AE08 /* LICENSE */,
 			);
 			sourceTree = "<group>";
 		};
@@ -109,6 +118,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				625E84522EEDB19C0086AE08 /* LICENSE in Resources */,
+				625E84532EEDB19C0086AE08 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
