@@ -28,9 +28,9 @@ class WallpaperManager: ObservableObject {
         
         loadWallpapers()
         
-        if !currentWallpapers.isEmpty {
-            start()
-        }
+//        if !currentWallpapers.isEmpty {
+//            start()
+//        }
         
     }
         

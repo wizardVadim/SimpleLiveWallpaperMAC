@@ -19,6 +19,11 @@ struct SimpleLiveWallpaperMACApp: App {
                 .onDisappear {
                     wallpaperManager.stop()
                 }
+                .onAppear {
+                    if !wallpaperManager.currentWallpapers.isEmpty {
+                        wallpaperManager.start()
+                    }
+                }
         }
         .windowResizability(.automatic)
     }
