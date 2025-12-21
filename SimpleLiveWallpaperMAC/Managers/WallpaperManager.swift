@@ -104,14 +104,10 @@ class WallpaperManager: ObservableObject {
         }
     }
     
-    func start(playScreenSaver: Bool = false) {
+    func start() {
         
         startOnDesktop()
-        
-        print("playScreenSaver: \(playScreenSaver)")
-        if playScreenSaver {
-            startOnScreenSaver()
-        }
+        setStaticWallpaper()
         
     }
     
@@ -140,8 +136,7 @@ class WallpaperManager: ObservableObject {
         isPlaying = true
     }
     
-    func startOnScreenSaver() {
-        print("playScreenSaver")
+    func setStaticWallpaper() {
         guard let wallpaper = currentWallpapers.first else { return }
             
         StaticWallpaperUtil.setWallpaper(fromVideo: wallpaper.url)
