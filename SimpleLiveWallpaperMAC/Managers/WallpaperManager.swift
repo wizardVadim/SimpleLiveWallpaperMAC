@@ -144,7 +144,7 @@ class WallpaperManager: ObservableObject {
         print("playScreenSaver")
         guard let wallpaper = currentWallpapers.first else { return }
             
-        LockScreenUtil.setLockScreen(fromVideo: wallpaper.url)
+        StaticWallpaperUtil.setWallpaper(fromVideo: wallpaper.url)
     }
     
     func stop() {

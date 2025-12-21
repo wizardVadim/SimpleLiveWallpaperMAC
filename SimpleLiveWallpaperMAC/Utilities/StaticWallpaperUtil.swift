@@ -1,5 +1,5 @@
 //
-//  LockScreenUtil.swift
+//  StaticWallpaperUtil.swift
 //  SimpleLiveWallpaperMAC
 //
 //  Created by Вадим Вехов on 14.12.2025.
@@ -7,7 +7,7 @@
 import AVFoundation
 import Cocoa
 
-final class LockScreenUtil {
+final class StaticWallpaperUtil {
 
     /// Генерируем кадр из видео и сохраняем как PNG
     static func generateImageFile(from url: URL, at time: CMTime = CMTimeMake(value: 1, timescale: 1)) -> URL? {
@@ -35,32 +35,22 @@ final class LockScreenUtil {
     }
     
     /// Устанавливает изображение на Lock Screen (через системный кэш)
-    static func setLockScreen(imageURL: URL) {
-        let lockScreenPath = "/Library/Caches/com.apple.desktop.admin.png"
-
-        // Экранируем пути
-        let src = imageURL.path.replacingOccurrences(of: "\"", with: "\\\"")
-        let dst = lockScreenPath.replacingOccurrences(of: "\"", with: "\\\"")
-
-        let script = """
-        do shell script "cp \\"\(src)\\" \\"\(dst)\\"" with administrator privileges
-        """
-
-        var error: NSDictionary?
-        let appleScript = NSAppleScript(source: script)
-        appleScript?.executeAndReturnError(&error)
-
-        if let err = error {
-            print("❌ AppleScript error:", err)
-        } else {
-            print("✅ Lock Screen image installed")
+    static func setWallpaper(imageURL: URL) {
+        let workspace = NSWorkspace.shared
+        guard let screen = NSScreen.main else { return }
+        
+        do {
+            try workspace.setDesktopImageURL(imageURL, for: screen, options: [:])
+        } catch (let error) {
+            print("Не удалось установить обои.")
         }
     }
 
     
     /// Основной метод: из видео → Lock Screen
-    static func setLockScreen(fromVideo url: URL) {
+    static func setWallpaper(fromVideo url: URL) {
         guard let tempFile = generateImageFile(from: url) else { return }
-        setLockScreen(imageURL: tempFile)
+        setWallpaper(imageURL: tempFile)
+        print("desktop wallpapers set")
     }
 }

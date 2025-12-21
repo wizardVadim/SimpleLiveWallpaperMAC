@@ -171,7 +171,7 @@ struct AddingPanelView: View {
 
 struct ControlPanelView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
-    @State private var playScreenSaver: Bool = false
+    @State private var playScreenSaver: Bool = true
     
     var body: some View {
         
@@ -207,7 +207,7 @@ struct ControlPanelView: View {
             }
             
             //Play the wallpaper on screen saver
-            //Toggle("Использовать для заставки", isOn: $playScreenSaver)
+            Toggle("Использовать для заставки", isOn: $playScreenSaver)
             
             // Wallpaper info
             if let current = wallpaperManager.currentWallpapers.first {

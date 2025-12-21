@@ -21,7 +21,7 @@ struct SimpleLiveWallpaperMACApp: App {
                 }
                 .onAppear {
                     if !wallpaperManager.currentWallpapers.isEmpty {
-                        wallpaperManager.start()
+                        wallpaperManager.start(playScreenSaver: true)
                     }
                 }
         }
