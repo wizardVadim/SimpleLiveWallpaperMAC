@@ -37,20 +37,17 @@ final class StaticWallpaperUtil {
         return nil
     }
     
-    /// Устанавливает изображение на Lock Screen (через системный кэш)
     static func setWallpaper(imageURL: URL) {
-        let workspace = NSWorkspace.shared
+        let workspace = NSWorkspace.shared // TODO: We can get current desktop image to view that
         guard let screen = NSScreen.main else { return }
         
         do {
             try workspace.setDesktopImageURL(imageURL, for: screen, options: [:])
         } catch (let error) {
-            print("Не удалось установить обои.")
+            print("Can't set static wallpaper.")
         }
     }
-
     
-    /// Основной метод: из видео → Lock Screen
     static func setWallpaper(fromVideo url: URL) {
         guard let tempFile = generateImageFile(from: url) else { return }
         setWallpaper(imageURL: tempFile)
