@@ -19,8 +19,11 @@ final class StaticWallpaperUtil {
             let cgImage = try generator.copyCGImage(at: time, actualTime: nil)
             let nsImage = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
             
+            let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+            let fileName = "lockscreen_wallpaper_\(timestamp).png"
+            
             let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
-            let tempFile = tempDir.appendingPathComponent("lockscreen_wallpaper.png")
+            let tempFile = tempDir.appendingPathComponent(fileName)
             
             if let tiffData = nsImage.tiffRepresentation,
                let bitmap = NSBitmapImageRep(data: tiffData),
