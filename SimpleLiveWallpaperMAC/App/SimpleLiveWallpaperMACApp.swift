@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct SimpleLiveWallpaperMACApp: App {
     @StateObject private var wallpaperManager = WallpaperManager()
+    @StateObject private var screenManager = ScreenManager()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(wallpaperManager)
+                .environmentObject(screenManager)
                 .frame(width: 300, height: 500)
                 .onDisappear {
                     wallpaperManager.stop()

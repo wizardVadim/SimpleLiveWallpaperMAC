@@ -11,6 +11,7 @@ internal import UniformTypeIdentifiers
 struct ContentView: View {
     // Получаем WallpaperManager из окружения
     @EnvironmentObject var wallpaperManager: WallpaperManager
+    @EnvironmentObject var screenManager: ScreenManager
     @State private var showingFilePicker = false
     
     var body: some View {
@@ -22,6 +23,8 @@ struct ContentView: View {
             
             // Status, activation, info
             ControlPanelView()
+            
+            ScreensView()
             
             // TODO: Add func to use wallpapers by queue and view selected wallpapers
             // CurrentWallpapersView()
@@ -217,6 +220,36 @@ struct ControlPanelView: View {
         .background(Color.gray.opacity(0.1))
         .cornerRadius(10)
         
+    }
+}
+
+struct ScreensView: View {
+    @EnvironmentObject var wallpaperManager: WallpaperManager
+    @EnvironmentObject var screenManager: ScreenManager
+    
+    @State private var selectedScreen: NSScreen? = NSScreen.main
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            Text("Выберите экран")
+                .font(.headline)
+            
+            // Выбор экрана
+            Picker("Экраны", selection: $selectedScreen) {
+                ForEach(screenManager.screens, id: \.self) { screen in
+                    Text(screen.localizedName)
+                        .tag(screen as NSScreen?)
+                }
+            }
+            .pickerStyle(MenuPickerStyle())
+            
+            if let selectedScreen = selectedScreen {
+                Text("Выбран экран: \(selectedScreen.localizedName)")
+                    .font(.subheadline)
+                    .padding(.top, 10)
+            }
+        }
+        .padding()
     }
 }
 
