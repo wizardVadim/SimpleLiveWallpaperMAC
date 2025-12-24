@@ -5,8 +5,8 @@ import Combine
 
 class WallpaperManager: ObservableObject {
     @Published var isPlaying = false
-    private var player: VideoPlayer?
-    private var containerWindow: NSWindow?
+    private var players: [NSScreen : VideoPlayer] = [:]
+    private var containersWindow: [NSScreen : NSWindow] = [:]
     private var screenManager: ScreenManager?
 
     @Published var availableWallpapers: [Wallpaper] = []
@@ -137,8 +137,8 @@ class WallpaperManager: ObservableObject {
         window.contentView = view
         window.makeKeyAndOrderFront(nil)
         
-        containerWindow = window
-        player = view
+        containersWindow[screen] = window
+        players[screen] = view
     }
     
     func setStaticWallpaper(screen: NSScreen) {
@@ -148,18 +148,26 @@ class WallpaperManager: ObservableObject {
     }
     
     func stop() {
-        guard let player = player else { return }
+        
+        if isPlaying {
+            let screens = screenManager?.screens
+            
+            for screen in screens ?? [] {
+                guard let player = players[screen] else { return }
 
-        player.removeFromSuperviewSafely()
-        player.stopVideo()
+                player.removeFromSuperviewSafely()
+                player.stopVideo()
 
-        if let window = containerWindow {
-            window.orderOut(nil)
-            containerWindow = nil
+                if let window = containersWindow[screen] {
+                    window.orderOut(nil)
+                    containersWindow[screen] = nil
+                }
+
+                self.players[screen] = nil
+            }
+            
+            isPlaying = false
         }
-
-        self.player = nil
-        isPlaying = false
     }
     
     func selectWallpaper(_ wallpaper: Wallpaper, screen: NSScreen) {
