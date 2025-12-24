@@ -7,7 +7,7 @@ A free application to use MP4 files as live wallpapers on macOS.
 ### Changelog
 
 - **v1.1.0**
-  | Функция |
+  | Feature |
   |---------|
   | You can use more than one screen |
   | Wallpapers will be starting after you start the app |
