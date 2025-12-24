@@ -6,6 +6,12 @@ A free application to use MP4 files as live wallpapers on macOS.
 
 ### Changelog
 
+- **v1.1.0**
+  | Функция |
+  |---------|
+  | You can use more than one screen |
+  | When you start the app wallpapers is playing |
+
 - **v1.0.0**
   | Feature |
   |---------|
@@ -19,6 +25,12 @@ A free application to use MP4 files as live wallpapers on macOS.
 Бесплатное приложение для установки живых обоев на систему macOS.
 
 ### Изменения
+
+- **v1.1.0**
+  | Функция |
+  |---------|
+  | Добавлена поддержка нескольких экранов |
+  | При включении будет воспроизведена очередь обоев (сохранение очереди) |
 
 - **v1.0.0**
   | Функция |
