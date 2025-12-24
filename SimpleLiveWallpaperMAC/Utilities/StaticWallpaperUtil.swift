@@ -37,9 +37,8 @@ final class StaticWallpaperUtil {
         return nil
     }
     
-    static func setWallpaper(imageURL: URL) {
+    static func setWallpaper(imageURL: URL, screen: NSScreen) {
         let workspace = NSWorkspace.shared // TODO: We can get current desktop image to view that
-        guard let screen = NSScreen.main else { return }
         
         do {
             try workspace.setDesktopImageURL(imageURL, for: screen, options: [:])
@@ -48,9 +47,9 @@ final class StaticWallpaperUtil {
         }
     }
     
-    static func setWallpaper(fromVideo url: URL) {
+    static func setWallpaper(fromVideo url: URL, screen: NSScreen) {
         guard let tempFile = generateImageFile(from: url) else { return }
-        setWallpaper(imageURL: tempFile)
+        setWallpaper(imageURL: tempFile, screen: screen)
         print("desktop wallpapers set")
     }
 }

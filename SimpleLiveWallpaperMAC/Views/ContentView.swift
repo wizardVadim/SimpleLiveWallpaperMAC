@@ -13,6 +13,7 @@ struct ContentView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
     @EnvironmentObject var screenManager: ScreenManager
     @State private var showingFilePicker = false
+    @State private var selectedScreen: NSScreen? = NSScreen.main
     
     var body: some View {
         VStack(spacing: 25) {
@@ -22,9 +23,9 @@ struct ContentView: View {
                 .fontWeight(.bold)
             
             // Status, activation, info
-            ControlPanelView()
+            ControlPanelView(selectedScreen: $selectedScreen)
             
-            ScreensView()
+            ScreensView(selectedScreen: $selectedScreen)
             
             // TODO: Add func to use wallpapers by queue and view selected wallpapers
             // CurrentWallpapersView()
@@ -33,7 +34,7 @@ struct ContentView: View {
             AddingPanelView(showingFilePicker: $showingFilePicker)
             
             // All available wallpapers
-            AvailableWallpapersView()
+            AvailableWallpapersView(selectedScreen: $selectedScreen)
             
             Spacer()
         }
@@ -74,24 +75,27 @@ struct ContentView: View {
 
 struct AvailableWallpapersView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
+    @Binding var selectedScreen: NSScreen?
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text("Available Wallpapers")
-                .font(.headline)
-                .padding(.horizontal)
-            
-            if wallpaperManager.availableWallpapers.isEmpty {
-                Text("Add your first video")
-                    .foregroundColor(.secondary)
-                    .padding()
-            } else {
-                List {
-                    ForEach(wallpaperManager.availableWallpapers) { wallpaper in
-                        AvailableWallpaperRow(wallpaper: wallpaper)
+        if let selectedScreen = selectedScreen {
+            VStack(alignment: .leading, spacing: 5) {
+                Text("Available Wallpapers")
+                    .font(.headline)
+                    .padding(.horizontal)
+                
+                if wallpaperManager.availableWallpapers.isEmpty {
+                    Text("Add your first video")
+                        .foregroundColor(.secondary)
+                        .padding()
+                } else {
+                    List {
+                        ForEach(wallpaperManager.availableWallpapers) { wallpaper in
+                            AvailableWallpaperRow(wallpaper: wallpaper, selectedScreen: $selectedScreen)
+                        }
                     }
+                    .frame(height: 150)
                 }
-                .frame(height: 150)
             }
         }
     }
@@ -100,60 +104,67 @@ struct AvailableWallpapersView: View {
 struct AvailableWallpaperRow: View {
     let wallpaper: Wallpaper
     @EnvironmentObject var manager: WallpaperManager
+    @Binding var selectedScreen: NSScreen?
     
     var isSelected: Bool {
-        manager.currentWallpapers.contains(where: { $0.id == wallpaper.id })
+        guard let selectedScreen = selectedScreen else { return false }
+        print("")
+        return manager.currentWallpapers[selectedScreen]?.contains(where: { $0.id == wallpaper.id }) ?? false
     }
     
     var body: some View {
-        HStack {
-            // Иконка
-            Image(systemName: "photo")
-                .foregroundColor(isSelected ? .blue : .gray)
+        
+        if let selectedScreen = selectedScreen {
             
-            // Информация
-            VStack(alignment: .leading) {
-                Text(wallpaper.title)
-                    .font(.body)
+            HStack {
+                // Иконка
+                Image(systemName: "photo")
+                    .foregroundColor(isSelected ? .blue : .gray)
                 
-                Text(wallpaper.url.path)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            }
-            
-            Spacer()
-            
-            
-            // Кнопки
-            if isSelected {
-                Button("Убрать") {
-                    manager.removeFromCurrent(wallpaper)
+                // Информация
+                VStack(alignment: .leading) {
+                    Text(wallpaper.title)
+                        .font(.body)
+                    
+                    Text(wallpaper.url.path)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
                 }
-                .buttonStyle(.borderless)
-                .foregroundColor(.red)
-            } else {
-                Button("Выбрать") {
-                    manager.selectWallpaper(wallpaper)
+                
+                Spacer()
+                
+                // Кнопки
+                if isSelected {
+                    Button("Убрать") {
+                        manager.removeFromCurrent(wallpaper, screen: selectedScreen)
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundColor(.red)
+                } else {
+                    Button("Выбрать") {
+                        manager.selectWallpaper(wallpaper, screen: selectedScreen)
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundColor(.blue)
                 }
-                .buttonStyle(.borderless)
-                .foregroundColor(.blue)
-            }
-            
-            Spacer()
-            
-            // Кнопки
-            Button(action: {
-                manager.removeFromAvailable(wallpaper)
-            }) {
-                Image(systemName: "trash")
+                
+                Spacer()
+                
+                // Кнопки
+                Button(action: {
+                    manager.removeFromAvailable(wallpaper)
+                }) {
+                    Image(systemName: "trash")
                         .font(.system(size: 15))
                         .foregroundColor(.red)
+                }
+                .buttonStyle(.borderless)
             }
-            .buttonStyle(.borderless)
+            .padding(.vertical, 4)
+            
         }
-        .padding(.vertical, 4)
     }
 }
 
@@ -175,6 +186,8 @@ struct AddingPanelView: View {
 struct ControlPanelView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
     
+    @Binding var selectedScreen: NSScreen?
+    
     var body: some View {
         
         VStack(spacing: 10) {
@@ -191,25 +204,27 @@ struct ControlPanelView: View {
             
             // Control buttons
             HStack(spacing: 20) {
-                Button(action: {
-                    if wallpaperManager.isPlaying {
-                        wallpaperManager.stop()
-                    } else {
-                        wallpaperManager.start()
+                if let selectedScreen = selectedScreen {
+                    Button(action: {
+                        if wallpaperManager.isPlaying {
+                            wallpaperManager.stop()
+                        } else {
+                            wallpaperManager.start()
+                        }
+                    }) {
+                        Label(
+                            wallpaperManager.isPlaying ? "Остановить" : "Включить",
+                            systemImage: wallpaperManager.isPlaying ? "stop.fill" : "play.fill"
+                        )
+                        .frame(width: 100)
                     }
-                }) {
-                    Label(
-                        wallpaperManager.isPlaying ? "Остановить" : "Включить",
-                        systemImage: wallpaperManager.isPlaying ? "stop.fill" : "play.fill"
-                    )
-                    .frame(width: 100)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(wallpaperManager.currentWallpapers[selectedScreen]?.isEmpty ?? true)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(wallpaperManager.currentWallpapers.isEmpty)
             }
             
             // Wallpaper info
-            if let current = wallpaperManager.currentWallpapers.first {
+            if let selectedScreen = selectedScreen, let current = wallpaperManager.currentWallpapers[selectedScreen]?.first {
                 Text("Текущие обои: \(current.title)")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -227,7 +242,7 @@ struct ScreensView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
     @EnvironmentObject var screenManager: ScreenManager
     
-    @State private var selectedScreen: NSScreen? = NSScreen.main
+    @Binding var selectedScreen: NSScreen?
     
     var body: some View {
         VStack(spacing: 10) {

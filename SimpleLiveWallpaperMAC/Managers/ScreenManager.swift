@@ -14,10 +14,19 @@ class ScreenManager: ObservableObject {
     
     init() {
         getScreens()
+        NotificationCenter.default.addObserver(self, selector: #selector(screenChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
     }
     
     private func getScreens() {
-        screens.append(contentsOf: NSScreen.screens)
+        screens = NSScreen.screens
     }
     
+    @objc private func screenChanged(notification: Notification) {
+        getScreens()
+        print("Screens updated: \(screens.count) screens")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
 }

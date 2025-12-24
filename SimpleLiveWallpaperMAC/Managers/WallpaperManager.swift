@@ -7,13 +7,15 @@ class WallpaperManager: ObservableObject {
     @Published var isPlaying = false
     private var player: VideoPlayer?
     private var containerWindow: NSWindow?
+    private var screenManager: ScreenManager?
 
     @Published var availableWallpapers: [Wallpaper] = []
-    @Published var currentWallpapers: [Wallpaper] = []
+    @Published var currentWallpapers: [NSScreen : [Wallpaper]] = [:]
     
     private let wallpapersDirectory: URL
         
     init() {
+        screenManager = ScreenManager()
         let fileManager = FileManager.default
         
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -64,7 +66,6 @@ class WallpaperManager: ObservableObject {
     func saveWallpapers() {
         
         saveAvailableWallpapers()
-        print("presave")
         saveCurrentWallpapers()
     }
     
@@ -105,17 +106,22 @@ class WallpaperManager: ObservableObject {
     }
     
     func start() {
-        
-        startOnDesktop()
-        setStaticWallpaper()
+        if !isPlaying {
+            let screens = screenManager?.screens
+            
+            for screen in screens ?? [] {
+                startOnDesktop(screen: screen)
+                setStaticWallpaper(screen: screen)
+            }
+            
+            isPlaying = true
+        }
         
     }
     
-    func startOnDesktop() {
-        guard !isPlaying, let wallpaper = currentWallpapers.first else { return }
-        
-        guard let screen = NSScreen.main else { return }
-        
+    func startOnDesktop(screen: NSScreen) {
+        let wallpaper = currentWallpapers[screen]?.first
+                
         let window = NSWindow(contentRect: screen.frame,
                               styleMask: [.borderless],
                               backing: .buffered,
@@ -127,19 +133,18 @@ class WallpaperManager: ObservableObject {
         window.collectionBehavior = [.stationary, .canJoinAllSpaces, .ignoresCycle]
         
         let view = VideoPlayer(frame: screen.frame)
-        view.videoURL = wallpaper.url
+        view.videoURL = wallpaper?.url
         window.contentView = view
         window.makeKeyAndOrderFront(nil)
         
         containerWindow = window
         player = view
-        isPlaying = true
     }
     
-    func setStaticWallpaper() {
-        guard let wallpaper = currentWallpapers.first else { return }
+    func setStaticWallpaper(screen: NSScreen) {
+        guard let wallpaper = currentWallpapers[screen]?.first else { return }
             
-        StaticWallpaperUtil.setWallpaper(fromVideo: wallpaper.url)
+        StaticWallpaperUtil.setWallpaper(fromVideo: wallpaper.url, screen: screen)
     }
     
     func stop() {
@@ -157,8 +162,13 @@ class WallpaperManager: ObservableObject {
         isPlaying = false
     }
     
-    func selectWallpaper(_ wallpaper: Wallpaper) {
-        currentWallpapers.insert(wallpaper, at: 0)
+    func selectWallpaper(_ wallpaper: Wallpaper, screen: NSScreen) {
+        
+        if (currentWallpapers[screen] == nil) {
+            currentWallpapers[screen] = []
+        }
+        
+        currentWallpapers[screen]?.insert(wallpaper, at: 0)
         
         if isPlaying {
             stop()
@@ -168,6 +178,7 @@ class WallpaperManager: ObservableObject {
         }
         self.saveWallpapers()
         print("✅ Selected wallpaper: \(wallpaper.title)")
+        print("✅ Current wallpapers: \(currentWallpapers[screen]?.count)")
     }
     
     func removeFromAvailable(_ wallpaper: Wallpaper) {
@@ -218,37 +229,55 @@ class WallpaperManager: ObservableObject {
     
     func loadCurrentWallpapers() {
         
-        guard let data = UserDefaults.standard.data(forKey: "currentWallpapers") else {
+        guard let data = UserDefaults.standard.data(forKey: "currentWallpapers_v2") else {
             print("ℹ️ No current wallpapers")
             return
         }
         
         do {
-            currentWallpapers = try JSONDecoder().decode([Wallpaper].self, from: data)
-            print("📥 Loaded current wallpapers count: \(currentWallpapers.count)")
+            let currentWallpapersData = try JSONDecoder().decode([String: [Wallpaper]].self, from: data)
             
-            var validWallpapers: [Wallpaper] = []
+            let screens = screenManager?.screens
             
-            for wallpaper in currentWallpapers {
-                let path = wallpaper.url.path
-                
-                if FileManager.default.fileExists(atPath: path) {
-                    let isReadable = FileManager.default.isReadableFile(atPath: path)
-                    print("✅ File found: \(wallpaper.title) - readable: \(isReadable)")
-                    
-                    if isReadable {
-                        validWallpapers.append(wallpaper)
-                    }
-                } else {
-                    print("❌ File is not found: \(wallpaper.title)")
+            for (screenIdentifier, wallpapers) in currentWallpapersData {
+                if let screen = screens?.first(where: {
+                    $0.localizedName == screenIdentifier
+                }) {
+                    self.currentWallpapers[screen] = wallpapers
                 }
             }
             
-            if validWallpapers.count != currentWallpapers.count {
-                currentWallpapers = validWallpapers
-                saveWallpapers()
-                print("🔄 Current wallpapers updated. Total count: \(currentWallpapers.count)")
+            var wallpapersCounter = 0
+                                  
+            for (screen, wallpapers) in currentWallpapers {
+                
+                var validWallpapers: [Wallpaper] = []
+                
+                for wallpaper in wallpapers {
+                    let path = wallpaper.url.path
+                    
+                    if FileManager.default.fileExists(atPath: path) {
+                        let isReadable = FileManager.default.isReadableFile(atPath: path)
+                        print("✅ File found: \(wallpaper.title) - readable: \(isReadable)")
+                        
+                        if isReadable {
+                            validWallpapers.append(wallpaper)
+                        }
+                    } else {
+                        print("❌ File is not found: \(wallpaper.title)")
+                    }
+                }
+                
+                if (validWallpapers.count != wallpapers.count) {
+                    currentWallpapers[screen] = validWallpapers
+                    print("Use valid wallpapers: \(validWallpapers.count)")
+                }
+                
+                wallpapersCounter += currentWallpapers[screen]?.count ?? 0
+                
             }
+            
+            print("Loaded wallpapers count: \(wallpapersCounter)")
             
         } catch {
             print("❌ Loading wallpapers failed: \(error)")
@@ -269,19 +298,23 @@ class WallpaperManager: ObservableObject {
     }
     
     func saveCurrentWallpapers() {
-        print("insave")
-        do {
-            let data = try JSONEncoder().encode(currentWallpapers)
-            UserDefaults.standard.set(data, forKey: "currentWallpapers")
-            print("Wallpaper's saved count: \(currentWallpapers.count)")
-        } catch {
-            print("Save error!")
-        }
-        
-    }
+       do {
+           // Преобразуем currentWallpapers в формат для UserDefaults
+           let screenWallpaperData = currentWallpapers.reduce([String: [Wallpaper]]()) { dict, entry in
+               var dict = dict
+               dict["\(entry.key.localizedName)"] = entry.value
+               return dict
+           }
+           
+           let data = try JSONEncoder().encode(screenWallpaperData)
+           UserDefaults.standard.set(data, forKey: "currentWallpapers_v2")
+       } catch {
+           print("Save error!")
+       }
+   }
     
-    func removeFromCurrent(_ wallpaper: Wallpaper) {
-        currentWallpapers.removeAll { $0.id == wallpaper.id }
+    func removeFromCurrent(_ wallpaper: Wallpaper, screen: NSScreen) {
+        currentWallpapers[screen]?.removeAll { $0.id == wallpaper.id }
         saveWallpapers()
         print("🗑 Removed from current: \(wallpaper.title)")
         stop()
