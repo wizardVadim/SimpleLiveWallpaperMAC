@@ -37,6 +37,12 @@ struct ContentView: View {
             AvailableWallpapersView(selectedScreen: $selectedScreen)
             
             Spacer()
+            
+            Button("Очистить все настройки") {
+                wallpaperManager.reboot()
+            }
+            .buttonStyle(.borderless)
+            .foregroundColor(.red)
         }
         .padding()
         .onAppear {

@@ -318,6 +318,15 @@ class WallpaperManager: ObservableObject {
         availableWallpapers.removeAll { $0.id == wallpaper.id }
         saveWallpapers()
         print("🗑 Removed from available: \(wallpaper.title)")
+        
+        let screens = screenManager?.screens
+        
+        for screen in screens ?? [] {
+            currentWallpapers[screen]?.removeAll { $0.id == wallpaper.id }
+            setCurrentWallpaperIndex(screen: screen, index: 0)
+        }
+        stop()
+        start()
     }
     
     
@@ -452,5 +461,23 @@ class WallpaperManager: ObservableObject {
         print("🗑 Removed from current: \(wallpaper.title)")
         stop()
         start()
+    }
+    
+    func reboot() {
+        
+        stop()
+        
+        // Clean all wallpapers
+        let screens = screenManager?.screens ?? []
+        for screen in screens {
+            currentWallpapers[screen]?.removeAll()
+        }
+        availableWallpapers.removeAll()
+        saveWallpapers()
+        
+        // Clean time to change
+        timeToChange = 0
+        saveTimeToChange()
+        
     }
 }
