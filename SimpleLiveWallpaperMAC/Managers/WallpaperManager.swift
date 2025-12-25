@@ -11,6 +11,9 @@ class WallpaperManager: ObservableObject {
 
     @Published var availableWallpapers: [Wallpaper] = []
     @Published var currentWallpapers: [NSScreen : [Wallpaper]] = [:]
+    private var currentWallpaperIndexes: [NSScreen : Int] = [:]
+    
+    private var timer: Timer?
     
     private let wallpapersDirectory: URL
         
@@ -30,10 +33,18 @@ class WallpaperManager: ObservableObject {
         
         loadWallpapers()
         
+        initCurrentWallpaperIndexes()
+        
 //        if !currentWallpapers.isEmpty {
 //            start()
 //        }
         
+    }
+    
+    private func initCurrentWallpaperIndexes() {
+        for (screen, _) in currentWallpapers {
+            currentWallpaperIndexes[screen] = 0
+        }
     }
         
     private func copyToSandbox(url: URL) throws -> URL {
@@ -105,22 +116,127 @@ class WallpaperManager: ObservableObject {
         }
     }
     
-    func start() {
-        if !isPlaying {
-            let screens = screenManager?.screens
-            
-            for screen in screens ?? [] {
-                startOnDesktop(screen: screen)
-                setStaticWallpaper(screen: screen)
-            }
-            
-            isPlaying = true
+    func start(timeToChange: TimeInterval = 0) {
+        
+        if (timeToChange != 0) {
+            timer = Timer.scheduledTimer(timeInterval: timeToChange, target: self, selector: #selector(playWallpaper), userInfo: nil, repeats: true)
         }
+        playWallpaper(isFirstStart: true)
         
     }
     
-    func startOnDesktop(screen: NSScreen) {
-        let wallpaper = currentWallpapers[screen]?.first
+    func stop() {
+        
+        timer?.invalidate()
+        timer = nil
+        stopPlaying()
+    }
+    
+    private func stopPlaying() {
+        if isPlaying {
+            let screens = screenManager?.screens
+            
+            for screen in screens ?? [] {
+                stopPlayingScreen(screen: screen)
+            }
+            
+        }
+        
+        isPlaying = false
+    }
+    
+    private func stopPlayingScreen(screen: NSScreen) {
+        guard let player = players[screen] else { return }
+
+        player.removeFromSuperviewSafely()
+        player.stopVideo()
+
+        if let window = containersWindow[screen] {
+            window.orderOut(nil)
+            containersWindow[screen] = nil
+        }
+
+        self.players[screen] = nil
+    }
+    
+    @objc private func playWallpaper(isFirstStart: Bool = false) {
+        
+        let screens = screenManager?.screens
+        
+        for screen in screens ?? [] {
+            if isFirstStart || ((currentWallpapers[screen]?.count ?? 0) > 1) {
+                if (isPlaying) {
+                    stopPlayingScreen(screen: screen)
+                }
+                startPlayingScreen(screen: screen)
+            }
+        }
+        
+        isPlaying = true
+        
+    }
+    
+    private func startPlayingScreen(screen: NSScreen) {
+        guard let wallpaper = getCurrentWallpaper(screen: screen) else
+        {
+            setCurrentWallpaperIndex(screen: screen)
+            return
+        }
+        
+        startOnDesktop(screen: screen, wallpaper: wallpaper)
+        setStaticWallpaper(screen: screen, wallpaper: wallpaper)
+        
+        setCurrentWallpaperIndex(screen: screen)
+    }
+    
+    private func setCurrentWallpaperIndex(screen: NSScreen) {
+        if (currentWallpaperIndexes[screen] == nil) {
+            currentWallpaperIndexes[screen] = 0
+            print("setCurrentWallpaperIndex:: Screen(\(screen.localizedName)) index was nil, init as 0")
+            return
+        }
+        
+        if ((currentWallpaperIndexes[screen] ?? 0) + 1 >= (currentWallpapers[screen]?.count ?? 0)) {
+            currentWallpaperIndexes[screen] = 0
+            print("setCurrentWallpaperIndex:: Screen(\(screen.localizedName)) index was more than wallpapers count, set as 0")
+            return
+        }
+        
+        currentWallpaperIndexes[screen] = currentWallpaperIndexes[screen]! + 1
+        print("setCurrentWallpaperIndex:: Screen(\(screen.localizedName)) set as \(currentWallpaperIndexes[screen]!)")
+        
+    }
+    
+    private func getCurrentWallpaper(screen: NSScreen) -> Wallpaper? {
+        
+        if (currentWallpapers[screen] == nil) {
+            currentWallpapers[screen] = []
+            print("getCurrentWallpaper:: Screen(\(screen.localizedName)) current wallpapers initialized, return nil")
+            return nil
+        }
+        
+        if currentWallpapers[screen]?.count == 0 {
+            print("getCurrentWallpaper:: Screen(\(screen.localizedName)) current wallpapers is empty, return nil")
+            return nil
+        }
+        
+        let currentIndex = currentWallpaperIndexes[screen] ?? 0
+        
+        print("getCurrentWallpaper:: Screen(\(screen.localizedName)) Current wallpaper index is \(currentIndex)")
+        
+        if currentIndex >= currentWallpapers[screen]!.count {
+            print("getCurrentWallpaper:: Screen(\(screen.localizedName)) current wallpaper index more than wallpapers count, return nil")
+            return nil
+        }
+        
+        let wallpaper = currentWallpapers[screen]![currentIndex]
+        print("getCurrentWallpaper:: Screen(\(screen.localizedName)) Wallpaper is found by index")
+        
+        return wallpaper
+        
+    }
+    
+    private func startOnDesktop(screen: NSScreen, wallpaper: Wallpaper) {
                 
         let window = NSWindow(contentRect: screen.frame,
                               styleMask: [.borderless],
@@ -133,7 +249,7 @@ class WallpaperManager: ObservableObject {
         window.collectionBehavior = [.stationary, .canJoinAllSpaces, .ignoresCycle]
         
         let view = VideoPlayer(frame: screen.frame)
-        view.videoURL = wallpaper?.url
+        view.videoURL = wallpaper.url
         window.contentView = view
         window.makeKeyAndOrderFront(nil)
         
@@ -141,33 +257,8 @@ class WallpaperManager: ObservableObject {
         players[screen] = view
     }
     
-    func setStaticWallpaper(screen: NSScreen) {
-        guard let wallpaper = currentWallpapers[screen]?.first else { return }
-            
+    private func setStaticWallpaper(screen: NSScreen, wallpaper: Wallpaper) {
         StaticWallpaperUtil.setWallpaper(fromVideo: wallpaper.url, screen: screen)
-    }
-    
-    func stop() {
-        
-        if isPlaying {
-            let screens = screenManager?.screens
-            
-            for screen in screens ?? [] {
-                guard let player = players[screen] else { return }
-
-                player.removeFromSuperviewSafely()
-                player.stopVideo()
-
-                if let window = containersWindow[screen] {
-                    window.orderOut(nil)
-                    containersWindow[screen] = nil
-                }
-
-                self.players[screen] = nil
-            }
-            
-            isPlaying = false
-        }
     }
     
     func selectWallpaper(_ wallpaper: Wallpaper, screen: NSScreen) {

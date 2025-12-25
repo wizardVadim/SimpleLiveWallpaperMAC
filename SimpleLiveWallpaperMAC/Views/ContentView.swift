@@ -14,6 +14,7 @@ struct ContentView: View {
     @EnvironmentObject var screenManager: ScreenManager
     @State private var showingFilePicker = false
     @State private var selectedScreen: NSScreen? = NSScreen.main
+    @State private var timeToChange: Int = 0
     
     var body: some View {
         VStack(spacing: 25) {
@@ -23,7 +24,7 @@ struct ContentView: View {
                 .fontWeight(.bold)
             
             // Status, activation, info
-            ControlPanelView(selectedScreen: $selectedScreen)
+            ControlPanelView(selectedScreen: $selectedScreen, timeToChange: $timeToChange)
             
             ScreensView(selectedScreen: $selectedScreen)
             
@@ -187,6 +188,9 @@ struct ControlPanelView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
     
     @Binding var selectedScreen: NSScreen?
+    @Binding var timeToChange: Int
+    
+    let timeOptions = [0, 30, 60, 90, 180, 300, 600, 6000]
     
     var body: some View {
         
@@ -209,7 +213,7 @@ struct ControlPanelView: View {
                         if wallpaperManager.isPlaying {
                             wallpaperManager.stop()
                         } else {
-                            wallpaperManager.start()
+                            wallpaperManager.start(timeToChange: TimeInterval(timeToChange))
                         }
                     }) {
                         Label(
@@ -222,6 +226,19 @@ struct ControlPanelView: View {
                     .disabled(wallpaperManager.currentWallpapers[selectedScreen]?.isEmpty ?? true)
                 }
             }
+            
+            HStack {
+                Text("Время для смены обоев (сек):")
+                Picker("Время", selection: $timeToChange) {
+                    ForEach(timeOptions, id: \.self) { time in
+                        Text("\(time) сек").tag(time)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+                .frame(width: 150)
+            }
+            .padding(.top)
+            
             
             // Wallpaper info
             if let selectedScreen = selectedScreen, let current = wallpaperManager.currentWallpapers[selectedScreen]?.first {
