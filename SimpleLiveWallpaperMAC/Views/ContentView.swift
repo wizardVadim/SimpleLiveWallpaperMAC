@@ -14,7 +14,6 @@ struct ContentView: View {
     @EnvironmentObject var screenManager: ScreenManager
     @State private var showingFilePicker = false
     @State private var selectedScreen: NSScreen? = NSScreen.main
-    @State private var timeToChange: Int = 0
     
     var body: some View {
         VStack(spacing: 25) {
@@ -24,7 +23,7 @@ struct ContentView: View {
                 .fontWeight(.bold)
             
             // Status, activation, info
-            ControlPanelView(selectedScreen: $selectedScreen, timeToChange: $timeToChange)
+            ControlPanelView(selectedScreen: $selectedScreen)
             
             ScreensView(selectedScreen: $selectedScreen)
             
@@ -188,7 +187,6 @@ struct ControlPanelView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
     
     @Binding var selectedScreen: NSScreen?
-    @Binding var timeToChange: Int
     
     let timeOptions = [0, 30, 60, 90, 180, 300, 600, 6000]
     
@@ -213,7 +211,7 @@ struct ControlPanelView: View {
                         if wallpaperManager.isPlaying {
                             wallpaperManager.stop()
                         } else {
-                            wallpaperManager.start(timeToChange: TimeInterval(timeToChange))
+                            wallpaperManager.start()
                         }
                     }) {
                         Label(
@@ -229,13 +227,20 @@ struct ControlPanelView: View {
             
             HStack {
                 Text("Время для смены обоев (сек):")
-                Picker("Время", selection: $timeToChange) {
+                Picker("Время", selection: $wallpaperManager.timeToChange) {
                     ForEach(timeOptions, id: \.self) { time in
                         Text("\(time) сек").tag(time)
                     }
                 }
                 .pickerStyle(MenuPickerStyle())
                 .frame(width: 150)
+                .onChange(of: wallpaperManager.timeToChange) { oldValue, newValue in
+                    if wallpaperManager.isPlaying {
+                        wallpaperManager.stop()
+                        wallpaperManager.start()
+                    }
+                    wallpaperManager.saveTimeToChange()
+                }
             }
             .padding(.top)
             

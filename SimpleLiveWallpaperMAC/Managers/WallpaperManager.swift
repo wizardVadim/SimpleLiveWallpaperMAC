@@ -13,6 +13,8 @@ class WallpaperManager: ObservableObject {
     @Published var currentWallpapers: [NSScreen : [Wallpaper]] = [:]
     private var currentWallpaperIndexes: [NSScreen : Int] = [:]
     
+    @Published var timeToChange: Int = 0
+    
     private var timer: Timer?
     
     private let wallpapersDirectory: URL
@@ -32,6 +34,7 @@ class WallpaperManager: ObservableObject {
         }
         
         loadWallpapers()
+        loadTimeToChange()
         
         initCurrentWallpaperIndexes()
         
@@ -72,6 +75,31 @@ class WallpaperManager: ObservableObject {
         )
         
         return destinationURL
+    }
+    
+    func saveTimeToChange() {
+        do {
+            let data = try JSONEncoder().encode(timeToChange)
+            UserDefaults.standard.set(data, forKey: "timeToChange")
+            print("Time to change saved: \(timeToChange)")
+        } catch {
+            print("Save error!")
+        }
+    }
+    
+    func loadTimeToChange() {
+        guard let data = UserDefaults.standard.data(forKey: "timeToChange") else {
+            print("ℹ️ No time to change")
+            return
+        }
+        
+        do {
+            timeToChange = try JSONDecoder().decode(Int.self, from: data)
+            print("📥 Time to change loaded: \(timeToChange)")
+            
+        } catch {
+            print("❌ Loading time to change param failed: \(error)")
+        }
     }
     
     func saveWallpapers() {
@@ -116,10 +144,10 @@ class WallpaperManager: ObservableObject {
         }
     }
     
-    func start(timeToChange: TimeInterval = 0) {
+    func start() {
         
         if (timeToChange != 0) {
-            timer = Timer.scheduledTimer(timeInterval: timeToChange, target: self, selector: #selector(playWallpaper), userInfo: nil, repeats: true)
+            timer = Timer.scheduledTimer(timeInterval: TimeInterval(timeToChange), target: self, selector: #selector(playWallpaper), userInfo: nil, repeats: true)
         }
         playWallpaper(isFirstStart: true)
         
@@ -172,38 +200,43 @@ class WallpaperManager: ObservableObject {
             }
         }
         
-        isPlaying = true
-        
     }
     
     private func startPlayingScreen(screen: NSScreen) {
         guard let wallpaper = getCurrentWallpaper(screen: screen) else
         {
-            setCurrentWallpaperIndex(screen: screen)
+            nextCurrentWallpaperIndex(screen: screen)
             return
         }
         
         startOnDesktop(screen: screen, wallpaper: wallpaper)
         setStaticWallpaper(screen: screen, wallpaper: wallpaper)
         
-        setCurrentWallpaperIndex(screen: screen)
+        nextCurrentWallpaperIndex(screen: screen)
+        
+        isPlaying = true
     }
     
-    private func setCurrentWallpaperIndex(screen: NSScreen) {
+    private func setCurrentWallpaperIndex(screen: NSScreen, index: Int) {
+        currentWallpaperIndexes[screen] = index
+    }
+    
+    private func nextCurrentWallpaperIndex(screen: NSScreen) {
         if (currentWallpaperIndexes[screen] == nil) {
-            currentWallpaperIndexes[screen] = 0
-            print("setCurrentWallpaperIndex:: Screen(\(screen.localizedName)) index was nil, init as 0")
+            setCurrentWallpaperIndex(screen: screen, index: 0)
+            print("nextCurrentWallpaperIndex:: Screen(\(screen.localizedName)) index was nil, init as 0")
             return
         }
         
         if ((currentWallpaperIndexes[screen] ?? 0) + 1 >= (currentWallpapers[screen]?.count ?? 0)) {
-            currentWallpaperIndexes[screen] = 0
-            print("setCurrentWallpaperIndex:: Screen(\(screen.localizedName)) index was more than wallpapers count, set as 0")
+            setCurrentWallpaperIndex(screen: screen, index: 0)
+            print("nextCurrentWallpaperIndex:: Screen(\(screen.localizedName)) index was more than wallpapers count, set as 0")
             return
         }
         
-        currentWallpaperIndexes[screen] = currentWallpaperIndexes[screen]! + 1
-        print("setCurrentWallpaperIndex:: Screen(\(screen.localizedName)) set as \(currentWallpaperIndexes[screen]!)")
+        let nextIndex = currentWallpaperIndexes[screen]! + 1
+        setCurrentWallpaperIndex(screen: screen, index: nextIndex)
+        print("nextCurrentWallpaperIndex:: Screen(\(screen.localizedName)) set as \(currentWallpaperIndexes[screen]!)")
         
     }
     
@@ -268,6 +301,7 @@ class WallpaperManager: ObservableObject {
         }
         
         currentWallpapers[screen]?.insert(wallpaper, at: 0)
+        setCurrentWallpaperIndex(screen: screen, index: 0)
         
         if isPlaying {
             stop()
@@ -413,6 +447,7 @@ class WallpaperManager: ObservableObject {
     
     func removeFromCurrent(_ wallpaper: Wallpaper, screen: NSScreen) {
         currentWallpapers[screen]?.removeAll { $0.id == wallpaper.id }
+        setCurrentWallpaperIndex(screen: screen, index: 0)
         saveWallpapers()
         print("🗑 Removed from current: \(wallpaper.title)")
         stop()
