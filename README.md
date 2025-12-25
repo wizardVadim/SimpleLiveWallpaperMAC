@@ -6,6 +6,11 @@ A free application to use MP4 files as live wallpapers on macOS.
 
 ### Changelog
 
+- **v1.1.1**
+  | Feature |
+  |---------|
+  | Playing wallpapers by queue |
+
 - **v1.1.0**
   | Feature |
   |---------|
@@ -25,6 +30,11 @@ A free application to use MP4 files as live wallpapers on macOS.
 Бесплатное приложение для установки живых обоев на систему macOS.
 
 ### Изменения
+
+- **v1.1.1**
+  | Feature |
+  |---------|
+  | Проигрывание обоев в порядке очереди |
 
 - **v1.1.0**
   | Функция |

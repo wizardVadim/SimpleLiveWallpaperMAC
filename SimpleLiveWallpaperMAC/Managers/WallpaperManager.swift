@@ -398,7 +398,6 @@ class WallpaperManager: ObservableObject {
     
     func saveCurrentWallpapers() {
        do {
-           // Преобразуем currentWallpapers в формат для UserDefaults
            let screenWallpaperData = currentWallpapers.reduce([String: [Wallpaper]]()) { dict, entry in
                var dict = dict
                dict["\(entry.key.localizedName)"] = entry.value
