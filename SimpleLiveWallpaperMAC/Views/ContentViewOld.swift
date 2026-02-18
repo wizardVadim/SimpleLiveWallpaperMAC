@@ -36,7 +36,7 @@ struct ContentViewOld: View {
             // Status, activation, info
             ControlPanelView(selectedScreen: $selectedScreen)
             
-            ScreensView(selectedScreen: $selectedScreen)
+            ScreensView_old(selectedScreen: $selectedScreen)
             
             // TODO: Add func to use wallpapers by queue and view selected wallpapers
             // CurrentWallpapersView()
@@ -277,7 +277,7 @@ struct ControlPanelView: View {
     }
 }
 
-struct ScreensView: View {
+struct ScreensView_old: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
     @EnvironmentObject var screenManager: ScreenManager
     

@@ -16,6 +16,7 @@ struct Wallpaper: Identifiable, Codable {
     var fileSize: Int64?
     var resolution: (width: Int, height: Int)?
     var lastPlayed: Date?
+    var imageURL: URL?
     
     init(url: URL) {
         self.id = UUID()
@@ -23,6 +24,7 @@ struct Wallpaper: Identifiable, Codable {
         self.fileName = url.lastPathComponent
         
         var title = url.deletingPathExtension().lastPathComponent
+        self.imageURL = StaticWallpaperUtil.generateImageFile(from: self.url)!
         guard let index = title.firstIndex(of: "_") else {
             self.title = title
             return
@@ -41,7 +43,7 @@ struct Wallpaper: Identifiable, Codable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, url, title, fileName, duration, fileSize, resolutionStruct, lastPlayed
+        case id, url, title, fileName, duration, fileSize, resolutionStruct, lastPlayed, imageURL
     }
     
     init(from decoder: Decoder) throws {
@@ -54,6 +56,9 @@ struct Wallpaper: Identifiable, Codable {
         duration = try container.decodeIfPresent(TimeInterval.self, forKey: .duration)
         fileSize = try container.decodeIfPresent(Int64.self, forKey: .fileSize)
         lastPlayed = try container.decodeIfPresent(Date.self, forKey: .lastPlayed)
+        let defaultImageURL = Bundle.main.url(forResource: "images-no", withExtension: "png")
+        imageURL = try container.decodeIfPresent(URL.self, forKey: .imageURL) ?? defaultImageURL
+        
         
         if let resStruct = try container.decodeIfPresent(Resolution.self, forKey: .resolutionStruct) {
             resolution = (width: resStruct.width, height: resStruct.height)
@@ -70,6 +75,7 @@ struct Wallpaper: Identifiable, Codable {
         try container.encodeIfPresent(duration, forKey: .duration)
         try container.encodeIfPresent(fileSize, forKey: .fileSize)
         try container.encodeIfPresent(lastPlayed, forKey: .lastPlayed)
+        try container.encodeIfPresent(imageURL, forKey: .imageURL)
         
         if let resStruct = resolutionStruct {
             try container.encode(resStruct, forKey: .resolutionStruct)

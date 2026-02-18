@@ -29,6 +29,7 @@ final class StaticWallpaperUtil {
                let bitmap = NSBitmapImageRep(data: tiffData),
                let pngData = bitmap.representation(using: .png, properties: [:]) {
                 try pngData.write(to: tempFile, options: .atomic)
+                print("image file: \(tempFile.path)")
                 return tempFile
             }
         } catch {

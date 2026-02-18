@@ -8,37 +8,96 @@ import SwiftUI
 
 struct WallpapersView: View {
     @Binding var selectedScreen: NSScreen?
+    @Binding var showingFilePicker: Bool
+    @EnvironmentObject var wallpaperManager: WallpaperManager
+    
+    @State var selectedWallpaper: Wallpaper?
+    
     var body: some View {
-        TitleView()
         VStack() {
-            MyWallpapersView(selectedScreen: $selectedScreen)
+            
+            MyWallpapersView(selectedScreen: $selectedScreen, selectedWallpaper: $selectedWallpaper)
+                .frame(alignment: .topLeading)
+                .frame( maxHeight: .infinity, alignment: .top, )
+        
+            HStack() {
+                Button(action: { showingFilePicker = true }) {
+                        Label {
+                            Text("Загрузить")
+                        } icon: {
+                            EmptyView()
+                        }
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.horizontal, 20)
+                    .tint(STYLE_COLOR_L)
+                    .frame(width: 200)
+                
+                Button(action: { if let selectedWallpaper = selectedWallpaper, let selectedScreen = selectedScreen {wallpaperManager.removeFromAvailable(selectedWallpaper)} }) {
+                            Label {
+                                Text("Удалить")
+                            } icon: {
+                                EmptyView()
+                            }
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.horizontal, 20)
+                    .tint(STYLE_COLOR_L)
+                    .frame(width: 300)
+                
+                Button(action: { if let selectedWallpaper = selectedWallpaper, let selectedScreen = selectedScreen {wallpaperManager.selectWallpaper(selectedWallpaper, screen: selectedScreen)} }) {
+                            Label {
+                                Text("Добавить в очередь")
+                            } icon: {
+                                EmptyView()
+                            }
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.horizontal, 20)
+                    .tint(STYLE_COLOR_L)
+                    .frame(width: 300)
+            }
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity, alignment: .bottom)
+            
         }
-        .frame(maxHeight: .infinity, alignment: .top)
+        .frame( maxHeight: .infinity, alignment: .top, )
     }
 }
 
 struct MyWallpapersView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
     @Binding var selectedScreen: NSScreen?
+    @Binding var selectedWallpaper: Wallpaper?
     
     var body: some View {
         if let selectedScreen = selectedScreen {
             VStack(alignment: .leading, spacing: 5) {
                 Text("Загруженные обои")
                     .font(.largeTitle)
-                    .padding(.horizontal)
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 
                 if wallpaperManager.availableWallpapers.isEmpty {
-                    Text("Add your first video")
+                    Text("Добавьте ваши первые обои")
                         .foregroundColor(.secondary)
                         .padding()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 } else {
                     // Используем ScrollView для горизонтального прокручивания
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 10) { // Расстояние между обоями
+                    ScrollView {
+                        let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 4)
+
+                        LazyVGrid(columns: columns, spacing: 20) {
                             ForEach(wallpaperManager.availableWallpapers) { wallpaper in
-                                MyWallpapersRow(wallpaper: wallpaper, selectedScreen: $selectedScreen)
-                                    .frame(width: 240, height: 135)
+                                MyWallpapersRow(
+                                    wallpaper: wallpaper,
+                                    selectedScreen: $selectedScreen,
+                                    selectedWallpaper: $selectedWallpaper
+                                )
                             }
                         }
                         .padding()
@@ -54,6 +113,7 @@ struct MyWallpapersRow: View {
     let wallpaper: Wallpaper
     @EnvironmentObject var manager: WallpaperManager
     @Binding var selectedScreen: NSScreen?
+    @Binding var selectedWallpaper: Wallpaper?
     @State private var isHovered = false
     @State private var showTooltip = false
     
@@ -69,20 +129,40 @@ struct MyWallpapersRow: View {
                         
             VStack(alignment: .leading) {
                 // Изображение
-                Image(systemName: "photo.fill") // Просто пример, тут будет ваш фон
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 160, height: 90)
-                    .cornerRadius(5)
-                    .onHover { hovering in
-                        isHovered = hovering // Обновляем состояние наведения
-                        showTooltip = hovering // Показываем подсказку при наведении
+                AsyncImage(url: wallpaper.imageURL!) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView() // пока грузится
+                            .frame(width: 160, height: 90)
+
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 160, height: 90)
+                            .cornerRadius(5)
+
+                    case .failure:
+                        Image(systemName: "photo.fill") // если ошибка
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 160, height: 90)
+
+                    @unknown default:
+                        EmptyView()
                     }
+                }
+                .onHover { hovering in
+                    isHovered = hovering
+                    showTooltip = hovering
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
                 
                 Spacer()
                 
                 Text(wallpaper.title)
                     .font(.body)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 
                 if showTooltip {
                     Text(wallpaper.url.path)
@@ -93,12 +173,23 @@ struct MyWallpapersRow: View {
                         .padding(5)
                         .foregroundColor(.white)
                         .cornerRadius(5)
-                        .offset(y: 10) // Можно настроить отступ от элемента
-                        .transition(.opacity) // Плавное появление
+                        .offset(y: 10)
+                        .transition(.opacity) 
                 }
             }
-            .padding(.vertical, 4) // Добавим немного отступа
+            .frame(width: 240, height: 155)
+            .padding(8) // Добавим немного отступа
             .animation(.easeInOut(duration: 0.2), value: showTooltip)
+            .onTapGesture {
+                selectedWallpaper = wallpaper
+            }
+            .shadow(
+                color: selectedWallpaper?.id == wallpaper.id
+                    ? STYLE_COLOR_L.opacity(0.8)
+                    : .clear,
+                radius: selectedWallpaper?.id == wallpaper.id ? 8 : 0
+            )
+            .animation(.easeInOut(duration: 0.2), value: selectedWallpaper?.id)
         }
     }
 }

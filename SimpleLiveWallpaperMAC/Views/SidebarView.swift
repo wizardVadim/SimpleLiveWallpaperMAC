@@ -8,20 +8,6 @@
 import SwiftUI
 internal import UniformTypeIdentifiers
 
-var STYLE_COLOR_D: Color = Color(
-    red: 255 / 255.0,
-    green: 177 / 255.0,
-    blue: 250 / 255.0,
-    opacity: 1
-)
-
-var STYLE_COLOR_L: Color = Color(
-    red: 255 / 255.0,
-    green: 199 / 255.0,
-    blue: 251 / 255.0,
-    opacity: 1
-)
-
 struct SidebarView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
     @Binding var selection: AppPage?
@@ -89,6 +75,7 @@ struct SidebarView: View {
         switch page {
         case .home: return "house"
         case .wallpapers: return "photo.on.rectangle"
+        case .queue: return "list.bullet"
         case .about: return "info.circle"
         }
     }
@@ -97,7 +84,9 @@ struct SidebarView: View {
 enum AppPage: String, CaseIterable, Identifiable {
     case home = "Главная"
     case wallpapers = "Мои обои"
+    case queue = "Очередь"
     case about = "О приложении"
+    
 
     var id: String { rawValue }
 }

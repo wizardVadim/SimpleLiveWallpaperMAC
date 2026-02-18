@@ -12,8 +12,15 @@ struct TitleView: View {
             Text("SL Wallpapers")
                 .font(.largeTitle)
                 .padding(30)
+                .frame(alignment: .center)
+            
+            HStack {
+                
+            }
+            .frame(maxWidth: .infinity)
             Divider()
+            
         }
-        .frame(maxHeight: .infinity, alignment: .top)
+        .frame(alignment: .top)
     }
 }

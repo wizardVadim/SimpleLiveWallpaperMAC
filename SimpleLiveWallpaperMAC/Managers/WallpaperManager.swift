@@ -8,6 +8,10 @@ class WallpaperManager: ObservableObject {
     private var players: [NSScreen : VideoPlayer] = [:]
     private var containersWindow: [NSScreen : NSWindow] = [:]
     private var screenManager: ScreenManager?
+    private var screensImages: [NSScreen: URL] = [:]
+    
+    private var MAX_AVAILABLE_WALLPAPERS: Int = 20
+    private var MAX_CURRENT_WALLPAPERS: Int = 10
 
     @Published var availableWallpapers: [Wallpaper] = []
     @Published var currentWallpapers: [NSScreen : [Wallpaper]] = [:]
@@ -21,6 +25,7 @@ class WallpaperManager: ObservableObject {
         
     init() {
         screenManager = ScreenManager()
+        
         let fileManager = FileManager.default
         
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -38,10 +43,38 @@ class WallpaperManager: ObservableObject {
         
         initCurrentWallpaperIndexes()
         
+        completeScreensImages()
+        
 //        if !currentWallpapers.isEmpty {
 //            start()
 //        }
         
+    }
+    
+    func getScreenImage(screen: NSScreen) -> URL? {
+        var currentImage = screensImages[screen] ?? nil
+        if currentImage == nil {
+            if let path = Bundle.main.path(forResource: "images-no", ofType: "png") {
+                currentImage = URL(fileURLWithPath: path)
+                screensImages[screen] = currentImage
+            }
+        }
+        return currentImage
+    }
+    
+    private func completeScreensImages() {
+        screensImages.removeAll()
+        if let screens = screenManager?.screens {
+           for screen in screens {
+               if let imgUrl = getCurrentWallpaper(screen: screen)?.imageURL {
+                   addScreenImage(screen: screen, url: imgUrl)
+               }
+           }
+       }
+    }
+    
+    private func addScreenImage(screen: NSScreen, url: URL) {
+        screensImages[screen] = url
     }
     
     private func initCurrentWallpaperIndexes() {
@@ -116,6 +149,11 @@ class WallpaperManager: ObservableObject {
     }
     
     func addWallpaper(url: URL) {
+        
+        if availableWallpapers.count >= MAX_AVAILABLE_WALLPAPERS {
+            print("Too many wallpapers")
+            return
+        }
         
         guard url.startAccessingSecurityScopedResource() else {
             print("❌ Could'nt access the file")
@@ -240,7 +278,7 @@ class WallpaperManager: ObservableObject {
         
     }
     
-    private func getCurrentWallpaper(screen: NSScreen) -> Wallpaper? {
+    public func getCurrentWallpaper(screen: NSScreen) -> Wallpaper? {
         
         if (currentWallpapers[screen] == nil) {
             currentWallpapers[screen] = []
@@ -291,13 +329,20 @@ class WallpaperManager: ObservableObject {
     }
     
     private func setStaticWallpaper(screen: NSScreen, wallpaper: Wallpaper) {
-        StaticWallpaperUtil.setWallpaper(fromVideo: wallpaper.url, screen: screen)
+        StaticWallpaperUtil.setWallpaper(imageURL: wallpaper.imageURL!, screen: screen)
     }
     
     func selectWallpaper(_ wallpaper: Wallpaper, screen: NSScreen) {
         
-        if (currentWallpapers[screen] == nil) {
-            currentWallpapers[screen] = []
+        let wallpapers = currentWallpapers[screen] ?? []
+
+        if wallpapers.count >= MAX_CURRENT_WALLPAPERS {
+            print("Превышен максимум текущих обоев (\(MAX_CURRENT_WALLPAPERS)) для экрана \(screen.localizedName)")
+            return
+        }
+        
+        if (currentWallpapers[screen]?.contains(where: { $0.id == wallpaper.id }) == true) {
+            return
         }
         
         currentWallpapers[screen]?.insert(wallpaper, at: 0)
@@ -310,6 +355,7 @@ class WallpaperManager: ObservableObject {
             }
         }
         self.saveWallpapers()
+        completeScreensImages()
         print("✅ Selected wallpaper: \(wallpaper.title)")
         print("✅ Current wallpapers: \(currentWallpapers[screen]?.count)")
     }

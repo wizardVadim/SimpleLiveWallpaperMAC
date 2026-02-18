@@ -17,7 +17,8 @@ struct SimpleLiveWallpaperMACApp: App {
             ContentView()
                 .environmentObject(wallpaperManager)
                 .environmentObject(screenManager)
-                .frame(width: 1200, height: 800)
+                .frame(minWidth: 1200)
+                .frame(minHeight: 800)
                 .onDisappear {
                     wallpaperManager.stop()
                 }

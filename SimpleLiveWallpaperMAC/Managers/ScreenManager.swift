@@ -29,4 +29,5 @@ class ScreenManager: ObservableObject {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
 }

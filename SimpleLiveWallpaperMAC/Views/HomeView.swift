@@ -7,7 +7,115 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Binding var selectedScreen: NSScreen?
+    @EnvironmentObject var screenManager: ScreenManager
+    @EnvironmentObject var wallpaperManager: WallpaperManager
     var body: some View {
-        TitleView()
+        ScreensView(selectedScreen: $selectedScreen)
+    }
+}
+
+struct ScreensView: View {
+    @Binding var selectedScreen: NSScreen?
+    @EnvironmentObject var screenManager: ScreenManager
+    @EnvironmentObject var wallpaperManager: WallpaperManager
+    
+    var body: some View {
+        if let selectedScreen = selectedScreen {
+            VStack(alignment: .leading, spacing: 5) {
+                Text("Управление экранами")
+                    .font(.largeTitle)
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                
+                let screens = screenManager.screens
+                
+                if !screens.isEmpty {
+
+                    ScrollView {
+                        let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 4)
+
+                        LazyVGrid(columns: columns, spacing: 20) {
+                            ForEach(Array(screens.enumerated()), id: \.offset) { index, screen in
+                                ScreensRow(
+                                    screen: screen,
+                                    selectedScreen: $selectedScreen
+                                )
+                            }
+                        }
+                        .padding()
+                    }
+
+                } else {
+                    Text("Добавьте обои на вкладке 'Мои обои'")
+                        .foregroundColor(.secondary)
+                        .padding()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                }
+            }
+        }
+    }
+}
+
+struct ScreensRow: View {
+    let screen: NSScreen
+    @EnvironmentObject var screenManager: ScreenManager
+    @EnvironmentObject var wallpaperManager: WallpaperManager
+    @Binding var selectedScreen: NSScreen?
+    @State private var isHovered = false
+    @State private var showTooltip = false
+    
+    var body: some View {
+        
+        if let localSelectedScreen = selectedScreen {
+            
+            VStack(alignment: .leading) {
+                // Изображение
+                AsyncImage(url: wallpaperManager.getScreenImage(screen: screen)) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView() // пока грузится
+                            .frame(width: 160, height: 90)
+
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 160, height: 90)
+                            .cornerRadius(5)
+
+                    case .failure:
+                        Image(systemName: "photo.fill") // если ошибка
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 160, height: 90)
+
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                
+                Spacer()
+                
+                Text(screen.localizedName)
+                    .font(.body)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                
+            }
+            .frame(width: 240, height: 155)
+            .padding(8) // Добавим немного отступа
+            .animation(.easeInOut(duration: 0.2), value: showTooltip)
+            .onTapGesture {
+                selectedScreen = screen
+            }
+            .shadow(
+                color: selectedScreen == screen
+                    ? STYLE_COLOR_L.opacity(0.8)
+                    : .clear,
+                radius: selectedScreen == screen ? 8 : 0
+            )
+            .animation(.easeInOut(duration: 0.2), value: selectedScreen)
+        }
     }
 }

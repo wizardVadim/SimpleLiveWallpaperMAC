@@ -8,6 +8,20 @@
 import SwiftUI
 internal import UniformTypeIdentifiers
 
+var STYLE_COLOR_D: Color = Color(
+    red: 255 / 255.0,
+    green: 177 / 255.0,
+    blue: 250 / 255.0,
+    opacity: 1
+)
+
+var STYLE_COLOR_L: Color = Color(
+    red: 255 / 255.0,
+    green: 199 / 255.0,
+    blue: 251 / 255.0,
+    opacity: 1
+)
+
 struct ContentView: View {
     // Получаем WallpaperManager из окружения
     @EnvironmentObject var wallpaperManager: WallpaperManager
@@ -22,13 +36,8 @@ struct ContentView: View {
             SidebarView(selection: $selection)
                 .frame(maxWidth: 250)
         } detail: {
-            DetailView(selection: selection, selectedScreen: $selectedScreen)
-            Button("Очистить все настройки") {
-                wallpaperManager.reboot()
-            }
-            .buttonStyle(.borderless)
-            .foregroundColor(.red)
-            .padding()
+            DetailView(selection: selection, selectedScreen: $selectedScreen, showingFilePicker: $showingFilePicker)
+            
         }
         .onAppear {
             wallpaperManager.loadWallpapers()
@@ -68,21 +77,25 @@ struct ContentView: View {
 struct DetailView: View {
     let selection: AppPage?
     @Binding var selectedScreen: NSScreen?
+    @Binding var showingFilePicker: Bool
 
     var body: some View {
+        TitleView()
         Group {
             switch selection {
             case .home:
-                HomeView()
+                HomeView(selectedScreen: $selectedScreen)
             case .wallpapers:
-                WallpapersView(selectedScreen: $selectedScreen)
+                WallpapersView(selectedScreen: $selectedScreen, showingFilePicker: $showingFilePicker)
             case .about:
                 AboutView()
+            case .queue:
+                QueueView(selectedScreen: $selectedScreen)
             default:
                 Text("Выберите раздел")
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
