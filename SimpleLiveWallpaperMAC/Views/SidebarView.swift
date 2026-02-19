@@ -10,6 +10,7 @@ internal import UniformTypeIdentifiers
 
 struct SidebarView: View {
     @EnvironmentObject var wallpaperManager: WallpaperManager
+    @Environment(\.colorScheme) var colorScheme
     @Binding var selection: AppPage?
 
     var body: some View {
@@ -56,7 +57,7 @@ struct SidebarView: View {
                             Spacer()
                         }
                         .padding(5)
-                        .background(selection == page ? STYLE_COLOR_L.opacity(0.3) : Color.clear)
+                        .background(selection == page && colorScheme == .dark ? STYLE_COLOR_L.opacity(0.3) : Color.clear)
                         .cornerRadius(6)
                         .onTapGesture {
                             selection = page

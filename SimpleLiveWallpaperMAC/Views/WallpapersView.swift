@@ -116,6 +116,7 @@ struct MyWallpapersRow: View {
     @Binding var selectedWallpaper: Wallpaper?
     @State private var isHovered = false
     @State private var showTooltip = false
+    @Environment(\.colorScheme) var colorScheme
     
     var isSelected: Bool {
         guard let selectedScreen = selectedScreen else { return false }
@@ -124,6 +125,8 @@ struct MyWallpapersRow: View {
     }
     
     var body: some View {
+        
+        let colorToShadow = (colorScheme == .dark) ? STYLE_COLOR_L.opacity(0.8) : STYLE_COLOR_D
         
         if let selectedScreen = selectedScreen {
                         
@@ -185,7 +188,7 @@ struct MyWallpapersRow: View {
             }
             .shadow(
                 color: selectedWallpaper?.id == wallpaper.id
-                    ? STYLE_COLOR_L.opacity(0.8)
+                    ? colorToShadow
                     : .clear,
                 radius: selectedWallpaper?.id == wallpaper.id ? 8 : 0
             )

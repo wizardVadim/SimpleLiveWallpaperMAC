@@ -64,8 +64,11 @@ struct ScreensRow: View {
     @Binding var selectedScreen: NSScreen?
     @State private var isHovered = false
     @State private var showTooltip = false
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
+        
+        let colorToShadow = (colorScheme == .dark) ? STYLE_COLOR_L.opacity(0.8) : STYLE_COLOR_D
         
         if let localSelectedScreen = selectedScreen {
             
@@ -111,7 +114,7 @@ struct ScreensRow: View {
             }
             .shadow(
                 color: selectedScreen == screen
-                    ? STYLE_COLOR_L.opacity(0.8)
+                    ? colorToShadow
                     : .clear,
                 radius: selectedScreen == screen ? 8 : 0
             )

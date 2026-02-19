@@ -56,6 +56,7 @@ struct ContentView: View {
             handleFileSelection(result)
         }
     }
+        
 
     
     private func handleFileSelection(_ result: Result<[URL], Error>) {
