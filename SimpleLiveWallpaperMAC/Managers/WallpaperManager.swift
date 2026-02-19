@@ -77,7 +77,7 @@ class WallpaperManager: ObservableObject {
                queue: .main
            ) { [weak self] _ in
                print("Screen woke up")
-               DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+               DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                    self?.stop()
                    self?.start()
                }
