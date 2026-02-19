@@ -63,14 +63,14 @@ struct ContentView: View {
         switch result {
         case .success(let urls):
             if let url = urls.first {
-                print("📁 Выбран файл: \(url.path)")
+                print("📁 file: \(url.path)")
                 
                 // Передаем файл в менеджер
                 // Теперь он сам скопирует его в sandbox
                 wallpaperManager.addWallpaper(url: url)
             }
         case .failure(let error):
-            print("❌ Ошибка выбора файла: \(error)")
+            print("❌ error choosing file: \(error)")
         }
     }
 }
@@ -93,7 +93,7 @@ struct DetailView: View {
             case .queue:
                 QueueView(selectedScreen: $selectedScreen)
             default:
-                Text("Выберите раздел")
+                Text("choose_a_page")
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

@@ -9,7 +9,7 @@ import SwiftUI
 struct TitleView: View {
     var body: some View {
         VStack(spacing: 10) {
-            Text("SL Wallpapers")
+            Text("title")
                 .font(.largeTitle)
                 .padding(30)
                 .frame(alignment: .center)

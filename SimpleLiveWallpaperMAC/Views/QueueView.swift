@@ -22,7 +22,7 @@ struct QueueView: View {
                 
                 Button(action: { if let selectedWallpaper = selectedWallpaper, let selectedScreen = selectedScreen {wallpaperManager.removeFromCurrent(selectedWallpaper, screen: selectedScreen)} }) {
                             Label {
-                                Text("Убрать из очереди")
+                                Text("remove_from_a_queue")
                             } icon: {
                                 EmptyView()
                             }
@@ -50,7 +50,7 @@ struct CurrentWallpapersView: View {
     var body: some View {
         if let selectedScreen = selectedScreen {
             VStack(alignment: .leading, spacing: 5) {
-                Text("Текущие обои")
+                Text("current_wallpapers")
                     .font(.largeTitle)
                     .padding(.vertical, 20)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -74,7 +74,7 @@ struct CurrentWallpapersView: View {
                     }
 
                 } else {
-                    Text("Добавьте обои на вкладке 'Мои обои'")
+                    Text("empty_message_queue")
                         .foregroundColor(.secondary)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)

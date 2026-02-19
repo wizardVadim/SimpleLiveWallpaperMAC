@@ -14,11 +14,17 @@ struct SidebarView: View {
     @Binding var selection: AppPage?
 
     var body: some View {
+        
+        let colorToFont = (colorScheme == .dark) ? STYLE_COLOR_L : Color.primary
+        let colorToBackgroundBorder = (colorScheme == .dark) ? STYLE_COLOR_L.opacity(0.3) : Color.gray.opacity(0.1)
+        let colorToSelectedImage = (colorScheme == .dark) ? STYLE_COLOR_L : Color.primary
+        let colorToImage = (colorScheme == .dark) ? STYLE_COLOR_D : Color.primary
+        
         VStack(alignment: .leading, spacing: 12) {
 
             // Заголовок + toggle
             HStack {
-                Text("Живые обои")
+                Text("live_wallpapers")
                     .font(.headline)
 
                 Spacer()
@@ -36,9 +42,9 @@ struct SidebarView: View {
 
             // Статус
             HStack {
-                Text("Состояние")
+                Text("state")
                 Spacer()
-                Text(wallpaperManager.isPlaying ? "Играет" : "Остановлено")
+                Text(wallpaperManager.isPlaying ? "playing" : "stopped")
                     .foregroundColor(wallpaperManager.isPlaying ? .green : .red)
             }
             .font(.subheadline)
@@ -47,17 +53,17 @@ struct SidebarView: View {
 
             // Меню
             List {
-                Section("Основные") {
+                Section("main") {
                     ForEach(AppPage.allCases) { page in
                         HStack {
                             Image(systemName: icon(for: page))
-                                .foregroundColor(selection == page ? STYLE_COLOR_L : STYLE_COLOR_D)
-                            Text(page.rawValue)
-                                .foregroundColor(selection == page ? STYLE_COLOR_L : .primary)
+                                .foregroundColor(selection == page ? colorToSelectedImage : colorToImage)
+                            Text(page.localizedName)
+                                .foregroundColor(selection == page ? colorToFont : .primary)
                             Spacer()
                         }
                         .padding(5)
-                        .background(selection == page && colorScheme == .dark ? STYLE_COLOR_L.opacity(0.3) : Color.clear)
+                        .background(selection == page ? colorToBackgroundBorder : Color.clear)
                         .cornerRadius(6)
                         .onTapGesture {
                             selection = page
@@ -83,13 +89,26 @@ struct SidebarView: View {
 }
 
 enum AppPage: String, CaseIterable, Identifiable {
-    case home = "Главная"
-    case wallpapers = "Мои обои"
-    case queue = "Очередь"
-    case about = "О приложении"
+    case home = "home"
+    case wallpapers = "wallpapers"
+    case queue = "queue"
+    case about = "about"
     
 
     var id: String { rawValue }
+    
+    var localizedName: String {
+        switch self {
+        case .home:
+            return NSLocalizedString("home", comment: "Home page title")
+        case .wallpapers:
+            return NSLocalizedString("wallpapers", comment: "Wallpapers page title")
+        case .queue:
+            return NSLocalizedString("queue", comment: "Queue page title")
+        case .about:
+            return NSLocalizedString("about", comment: "About page title")
+        }
+    }
 }
 
 // Предпросмотр для SwiftUI Canvas

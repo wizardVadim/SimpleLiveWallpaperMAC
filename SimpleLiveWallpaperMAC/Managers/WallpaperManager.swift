@@ -22,8 +22,11 @@ class WallpaperManager: ObservableObject {
     private var timer: Timer?
     
     private let wallpapersDirectory: URL
+    private var screenSleepObserver: Any?
+    private var screenWakeObserver: Any?
         
     init() {
+        
         screenManager = ScreenManager()
         
         let fileManager = FileManager.default
@@ -44,12 +47,54 @@ class WallpaperManager: ObservableObject {
         initCurrentWallpaperIndexes()
         
         completeScreensImages()
+        setupPowerManagementObservers()
         
 //        if !currentWallpapers.isEmpty {
 //            start()
 //        }
         
     }
+    
+    deinit {
+       let notificationCenter = NSWorkspace.shared.notificationCenter
+       
+       if let screenSleepObserver = screenSleepObserver {
+           notificationCenter.removeObserver(screenSleepObserver)
+       }
+       if let screenWakeObserver = screenWakeObserver {
+           notificationCenter.removeObserver(screenWakeObserver)
+       }
+   }
+    
+    private func setupPowerManagementObservers() {
+           // Наблюдатель за пробуждением системы от сна
+           let notificationCenter = NSWorkspace.shared.notificationCenter
+           
+           // Когда экран просыпается
+           screenWakeObserver = notificationCenter.addObserver(
+               forName: NSWorkspace.screensDidWakeNotification,
+               object: nil,
+               queue: .main
+           ) { [weak self] _ in
+               print("Screen woke up")
+               DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                   self?.stop()
+                   self?.start()
+               }
+           }
+           
+           // Когда экран засыпает (на всякий случай)
+           screenSleepObserver = notificationCenter.addObserver(
+               forName: NSWorkspace.screensDidSleepNotification,
+               object: nil,
+               queue: .main
+           ) { [weak self] _ in
+               print("Screen is sleeping")
+               DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                   self?.stop()
+               }
+           }
+       }
     
     func getScreenImage(screen: NSScreen) -> URL? {
         var currentImage = screensImages[screen] ?? nil

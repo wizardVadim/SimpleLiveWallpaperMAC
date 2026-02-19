@@ -23,7 +23,7 @@ struct WallpapersView: View {
             HStack() {
                 Button(action: { showingFilePicker = true }) {
                         Label {
-                            Text("Загрузить")
+                            Text("upload")
                         } icon: {
                             EmptyView()
                         }
@@ -36,7 +36,7 @@ struct WallpapersView: View {
                 
                 Button(action: { if let selectedWallpaper = selectedWallpaper, let selectedScreen = selectedScreen {wallpaperManager.removeFromAvailable(selectedWallpaper)} }) {
                             Label {
-                                Text("Удалить")
+                                Text("remove")
                             } icon: {
                                 EmptyView()
                             }
@@ -49,7 +49,7 @@ struct WallpapersView: View {
                 
                 Button(action: { if let selectedWallpaper = selectedWallpaper, let selectedScreen = selectedScreen {wallpaperManager.selectWallpaper(selectedWallpaper, screen: selectedScreen)} }) {
                             Label {
-                                Text("Добавить в очередь")
+                                Text("to_queue")
                             } icon: {
                                 EmptyView()
                             }
@@ -76,13 +76,13 @@ struct MyWallpapersView: View {
     var body: some View {
         if let selectedScreen = selectedScreen {
             VStack(alignment: .leading, spacing: 5) {
-                Text("Загруженные обои")
+                Text("available_wallpapers")
                     .font(.largeTitle)
                     .padding(.vertical, 20)
                     .frame(maxWidth: .infinity, alignment: .center)
                 
                 if wallpaperManager.availableWallpapers.isEmpty {
-                    Text("Добавьте ваши первые обои")
+                    Text("empty_message_wallpapers")
                         .foregroundColor(.secondary)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)

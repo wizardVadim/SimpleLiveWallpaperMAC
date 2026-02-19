@@ -12,11 +12,11 @@ struct AboutView: View {
     var body: some View {
         VStack() {
             
-            Text("Приложение разработано для бесплатной установки живых обоев на рабочий стол MacBook")
+            Text("about_text")
                 .frame(maxHeight: .infinity, )
             
             HStack() {
-                Button("Очистить все настройки") {
+                Button("clean_settings") {
                     wallpaperManager.reboot()
                 }
                 .buttonStyle(.borderless)

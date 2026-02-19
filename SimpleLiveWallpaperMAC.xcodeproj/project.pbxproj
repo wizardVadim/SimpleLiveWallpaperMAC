@@ -9,12 +9,14 @@
 /* Begin PBXBuildFile section */
 		625E84522EEDB19C0086AE08 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 625E84502EEDB19C0086AE08 /* LICENSE */; };
 		625E84532EEDB19C0086AE08 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 625E84512EEDB19C0086AE08 /* README.md */; };
+		6297A7992F47051D00A768E3 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6297A7982F47051D00A768E3 /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		625E84422EEDB17C0086AE08 /* SimpleLiveWallpaperMAC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleLiveWallpaperMAC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		625E84422EEDB17C0086AE08 /* SL Wallpapers .app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SL Wallpapers .app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		625E84502EEDB19C0086AE08 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		625E84512EEDB19C0086AE08 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		6297A7982F47051D00A768E3 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -43,13 +45,14 @@
 				625E84432EEDB17C0086AE08 /* Products */,
 				625E84512EEDB19C0086AE08 /* README.md */,
 				625E84502EEDB19C0086AE08 /* LICENSE */,
+				6297A7982F47051D00A768E3 /* Localizable.xcstrings */,
 			);
 			sourceTree = "<group>";
 		};
 		625E84432EEDB17C0086AE08 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				625E84422EEDB17C0086AE08 /* SimpleLiveWallpaperMAC.app */,
+				625E84422EEDB17C0086AE08 /* SL Wallpapers .app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,7 +79,7 @@
 			packageProductDependencies = (
 			);
 			productName = SimpleLiveWallpaperMAC;
-			productReference = 625E84422EEDB17C0086AE08 /* SimpleLiveWallpaperMAC.app */;
+			productReference = 625E84422EEDB17C0086AE08 /* SL Wallpapers .app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -100,6 +103,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 625E84392EEDB17C0086AE08;
 			minimizedProjectReferenceProxies = 1;
@@ -118,6 +122,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6297A7992F47051D00A768E3 /* Localizable.xcstrings in Resources */,
 				625E84522EEDB19C0086AE08 /* LICENSE in Resources */,
 				625E84532EEDB19C0086AE08 /* README.md in Resources */,
 			);
@@ -195,6 +200,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -251,6 +257,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
@@ -259,7 +266,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -268,7 +275,7 @@
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "SL Wallpaper ";
+				INFOPLIST_KEY_CFBundleDisplayName = "SL Wallpapers";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -276,7 +283,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = wizardVadim.SimpleLiveWallpaperMAC;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "SL Wallpapers ";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -292,7 +299,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -301,7 +308,7 @@
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "SL Wallpaper ";
+				INFOPLIST_KEY_CFBundleDisplayName = "SL Wallpapers";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -309,7 +316,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = wizardVadim.SimpleLiveWallpaperMAC;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "SL Wallpapers ";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

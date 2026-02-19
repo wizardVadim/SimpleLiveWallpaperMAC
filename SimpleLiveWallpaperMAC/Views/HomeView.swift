@@ -23,7 +23,7 @@ struct ScreensView: View {
     var body: some View {
         if let selectedScreen = selectedScreen {
             VStack(alignment: .leading, spacing: 5) {
-                Text("Управление экранами")
+                Text("screens_settings")
                     .font(.largeTitle)
                     .padding(.vertical, 20)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -47,7 +47,7 @@ struct ScreensView: View {
                     }
 
                 } else {
-                    Text("Добавьте обои на вкладке 'Мои обои'")
+                    Text("empty_message_home_screens")
                         .foregroundColor(.secondary)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -77,7 +77,7 @@ struct ScreensRow: View {
                 AsyncImage(url: wallpaperManager.getScreenImage(screen: screen)) { phase in
                     switch phase {
                     case .empty:
-                        ProgressView() // пока грузится
+                        ProgressView()
                             .frame(width: 160, height: 90)
 
                     case .success(let image):
@@ -88,7 +88,7 @@ struct ScreensRow: View {
                             .cornerRadius(5)
 
                     case .failure:
-                        Image(systemName: "photo.fill") // если ошибка
+                        Image(systemName: "photo.fill")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 160, height: 90)
